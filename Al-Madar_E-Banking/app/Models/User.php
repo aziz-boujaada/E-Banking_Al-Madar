@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\Account;
+use App\Models\Transfer;
 
 class User extends Authenticatable implements JWTSubject 
 {
@@ -21,7 +23,11 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
+        'birth_date',
+        'role',
         'password',
     ];
 
@@ -44,6 +50,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
+            'birth_date' => 'date',
             'password' => 'hashed',
         ];
     }
@@ -66,5 +73,27 @@ class User extends Authenticatable implements JWTSubject
     public function getJwtCustomClaims()
     {
         return [];
+    }
+
+    public function ownedAccounts()
+    {
+        return $this->hasMany(Account::class, 'owner_id');
+    }
+
+    public function coOwnedAccounts()
+    {
+        return $this->belongsToMany(Account::class)
+            ->withPivot('accepted_closure')
+            ->withTimestamps();
+    }
+
+    public function guardianAccounts()
+    {
+        return $this->hasMany(Account::class, 'guardian_id');
+    }
+
+    public function initiatedTransfers()
+    {
+        return $this->hasMany(Transfer::class, 'initiated_by');
     }
 }
