@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('transfers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('source_account_id')->constrained('accounts');
+            $table->foreignId('destination_account_id')->constrained('accounts');
+            $table->foreignId('initiated_by')->constrained('users');
+            $table->decimal('amount', 15, 2);
+            $table->string('status')->default('PENDING');
+            $table->string('reference')->nullable();
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('transfers');
+    }
+};
